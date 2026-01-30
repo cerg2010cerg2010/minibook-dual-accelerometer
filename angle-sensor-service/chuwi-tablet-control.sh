@@ -11,11 +11,6 @@ usage() {
 	errecho -e "\tValid states are: CLOSED, LAPTOP, TENT, TABLET"
 }
 
-TABLET_MODE_TRIGGER_LOCATIONS=(
-	"/sys/devices/platform/MDA6655:00/chuwi_dual_accel_tablet_mode"
-	"/sys/bus/acpi/devices/MDA6655:00/chuwi_ltsm_hack"
-)
-
 if [ $# -eq 1 ]; then
 	old_state=""
 	new_state="$1"
@@ -27,24 +22,13 @@ else
 	exit 1
 fi
 
-for f in "${TABLET_MODE_TRIGGER_LOCATIONS[@]}"; do
-	if [ -w $f ]; then
-		TABLET_MODE_TRIGGER="$f"
-		break
-	fi
-done
-
-if [ -z ${TABLET_MODE_TRIGGER+x} ]; then
-	errecho "Tablet mode trigger file not found in sysfs"
-	exit 1
-fi
-
 case "$new_state" in
+	# TODO: get device path from IIO firmware_node/path
 	"CLOSED"|"LAPTOP")
-		echo 0 > "${TABLET_MODE_TRIGGER}"
+		echo '\_SB.PC00.I2C3.ACC.CVTD' > /proc/acpi/call
 		;; 
 	"TENT"|"TABLET")
-		echo 1 > "${TABLET_MODE_TRIGGER}"
+		echo '\_SB.PC00.I2C3.ACC.CVTT' > /proc/acpi/call
 		;;
 	*)
 		errecho "Invalid tablet mode '$new_state'!"
