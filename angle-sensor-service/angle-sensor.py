@@ -76,7 +76,22 @@ class Accel:
         """
 
         if device_file is None:
-            devices = list(pyudev_ctx.list_devices(ACCEL_LOCATION=location))
+            #devices = list(pyudev_ctx.list_devices(ACCEL_LOCATION=location))
+            devices = list(pyudev_ctx.list_devices(subsystem='iio'))
+            for i, d in enumerate(devices):
+                if 'ACCEL_LOCATION' in d.properties and d.properties['ACCEL_LOCATION'] == location:
+                    continue
+                try:
+                    with open(d.sys_path + '/label', 'r') as f:
+                        if 'accel-' + location == f.read().strip():
+                            continue
+                except FileNotFoundError:
+                    pass
+                except IOError as e:
+                    print(f'Error reading {d.sys_path}/label: {e}')
+                    pass
+
+                devices.pop(i)
             if len(devices) < 1:
                 raise Exception(f'Could not find any accelerometers in udev '
                                 f'with ACCEL_LOCATION={location}.')
