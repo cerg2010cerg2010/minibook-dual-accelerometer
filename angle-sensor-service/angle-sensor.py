@@ -82,7 +82,7 @@ class Accel:
                 if 'ACCEL_LOCATION' in d.properties and d.properties['ACCEL_LOCATION'] == location:
                     continue
                 try:
-                    with open(d.sys_path + '/label', 'r') as f:
+                    with open(os.path.join(d.sys_path, 'label'), 'r') as f:
                         if 'accel-' + location == f.read().strip():
                             continue
                 except FileNotFoundError:
@@ -123,6 +123,15 @@ class Accel:
                             f'{self.dev.device_path}.')
                 transform = self.parse_mount_matrix(mountmatrix)
             except KeyError:
+                transform = None
+
+        if transform is None:
+            try:
+                mountmatrix = self.read_attr('in_mount_matrix')
+                logger.info(f'Found in_mount_matrix attribute for '
+                            f'{self.dev.device_path}.')
+                transform = self.parse_mount_matrix(mountmatrix)
+            except FileNotFoundError:
                 transform = None
 
         if transform is not None:
