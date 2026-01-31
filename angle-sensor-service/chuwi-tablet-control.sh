@@ -25,10 +25,10 @@ fi
 case "$new_state" in
 	# TODO: get device path from IIO firmware_node/path
 	"CLOSED"|"LAPTOP")
-		echo '\_SB.PC00.I2C3.ACC.CVTD' > /proc/acpi/call
+		echo '\_SB.PC00.I2C3.ACC.CVTD 0' > /proc/acpi/call
 		;; 
 	"TENT"|"TABLET")
-		echo '\_SB.PC00.I2C3.ACC.CVTT' > /proc/acpi/call
+		echo '\_SB.PC00.I2C3.ACC.CVTT 0' > /proc/acpi/call
 		;;
 	*)
 		errecho "Invalid tablet mode '$new_state'!"
